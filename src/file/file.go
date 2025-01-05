@@ -78,3 +78,10 @@ func Exists(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil
 }
+
+func CheckExists(f1 string, f2 string) string{
+	if Exists(f1){
+		return f1
+	}
+	return f2
+}

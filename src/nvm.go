@@ -56,7 +56,11 @@ type Environment struct {
 	verifyssl       bool
 }
 
-var home = filepath.Clean(os.Getenv("NVM_HOME") + "\\settings.txt")
+var cwd, _ = os.Getwd()
+var parent = filepath.Dir(cwd)
+var example = filepath.Join(parent, "examples")
+var settings = filepath.Join(example, "settings.txt")
+var home = file.CheckExists(settings, filepath.Join(os.Getenv("NVM_HOME"), "settings.txt"))
 var symlink = filepath.Clean(os.Getenv("NVM_SYMLINK"))
 
 var env = &Environment{
@@ -738,19 +742,19 @@ func install(version string, cpuarch string) {
 			// If successful, add npm
 			status <- Status{Text: "Downloading npm..."}
 			npmv := getNpmVersion(version)
-			success := web.GetNpm(root, getNpmVersion(version))
+			success, npmZipPath := web.GetNpm(root, getNpmVersion(version))
 			if success {
 				status <- Status{Text: fmt.Sprintf("Installing npm v%s...", npmv)}
 
 				// new temp directory under the nvm root
-				tempDir, err := os.MkdirTemp("", "nvm-npm-*")
+				tempDir, err := os.MkdirTemp(root, "nvm-npm-*")
 				if err != nil {
 					status <- Status{Err: err}
 				}
 				defer os.RemoveAll(tempDir)
 
 				// Extract npm to the temp directory
-				err = file.Unzip(filepath.Join(tempDir, "npm-v"+npmv+".zip"), filepath.Join(tempDir, "nvm-npm"))
+				err = file.Unzip(npmZipPath, filepath.Join(tempDir, "nvm-npm"))
 				if err != nil {
 					status <- Status{Err: err}
 				}
@@ -1679,6 +1683,8 @@ func checkLocalEnvironment() {
 
 	if _, err := os.Stat(env.settings); err != nil {
 		problems = append(problems, "Cannot find "+env.settings)
+	}else{
+		fmt.Println("\n"+env.settings+"\n")
 	}
 
 	if len(problems) == 0 {

@@ -1,4 +1,7 @@
-root: C:\Users\Corey\AppData\Roaming\nvm
-path: C:\Program Files\nodejs
+root: C:\Users\summe\AppData\Roaming\nvm
+path: C:\nvm4w
 arch: 64
 proxy: none
+
+node_mirror: https://npmmirror.com/mirrors/node/
+npm_mirror: https://npmmirror.com/mirrors/npm/
